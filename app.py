@@ -68,14 +68,24 @@ def forge():
     click.echo('Done.')
 
 # 4.学习渲染模板
+# 6.错误处理
+@app.errorhandler(404)  # 传入要处理的错误代码
+def page_not_found(e):  # 接受异常对象作为参数
+#     user = User.query.first()
+    return render_template('404.html'), 404  # 返回模板和状态码
+
+# 更优雅的处理方式：模板上下文处理函数
+@app.context_processor
+def inject_user():  # 函数名可以随意修改
+    user = User.query.first()
+    return dict(user=user)  # 需要返回字典，等同于 return {'user': user}
 
 # 注册主页
 @app.route('/')
 @app.route('/hello')
 def index():
-    user = User.query.first()  # 读取用户记录
     movies = Movie.query.all()  # 读取所有电影记录
-    return render_template('index.html', user = user, movies=movies)
+    return render_template('index.html', movies=movies)
 
 #  用户输入的数据会包含恶意代码，所以不能直接作为响应返回，
 #  需要使用 MarkupSafe（Flask 的依赖之一）提供的 escape() 函数
